@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CollabPro
+
+Real-time team collaboration platform (documents + boards + tasks). This
+repository is currently in the **Foundations phase**: routing, design system,
+and deploy pipeline only — no auth, database, or real-time backend yet.
+
+## Stack
+
+Next.js 15 (App Router) · TypeScript (strict) · Tailwind CSS · shadcn/ui-style
+components · Prisma/PostgreSQL (planned) · Socket.io (planned) · Redis
+(planned) · NextAuth.js (planned)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see
+the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Route                    | Purpose                                   |
+| ------------------------- | ------------------------------------------ |
+| `/`                        | Landing page                              |
+| `/login`, `/signup`        | Auth placeholders (no AppShell)           |
+| `/dashboard`                | Workspace overview                        |
+| `/documents/[id]`           | Document editor placeholder               |
+| `/settings`                 | Organization/team settings                |
+| `/settings/audit-logs`      | Audit log placeholder                     |
+| `/health`                   | Renders data fetched from `/api/health`   |
+| `/api/health`               | Health check route handler (mock data)    |
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in real values before connecting
+a database or auth provider:
+
+```bash
+cp .env.example .env.local
+```
+
+None of these are required to run the Foundations-phase app locally — they
+exist for the phases that follow (DB, auth, real-time).
+
+## Deploy
+
+1. Push this repository to GitHub (or GitLab/Bitbucket).
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
+   Vercel auto-detects the Next.js framework — no build configuration needed.
+3. Before the first deploy (or any time after, under **Project → Settings →
+   Environment Variables**), add the variables listed in `.env.example`:
+   - `DATABASE_URL`
+   - `NEXTAUTH_SECRET`
+   - `NEXTAUTH_URL` (set to your production URL, e.g. `https://your-app.vercel.app`)
+   - `REDIS_URL`
+
+   These aren't required for the Foundations phase to build and deploy
+   successfully, but adding them now avoids a redeploy later.
+4. Click **Deploy**. Vercel will build and give you a preview URL immediately,
+   plus a production URL on the default branch.
+5. Every subsequent push to the connected branch triggers a new deployment
+   automatically.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Vercel deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)

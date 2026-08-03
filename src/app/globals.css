@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutral navy-gray scale */
+  --color-neutral-50: #f7f8fa;
+  --color-neutral-100: #eceef2;
+  --color-neutral-200: #d7dbe3;
+  --color-neutral-300: #b4bbc9;
+  --color-neutral-400: #8892a6;
+  --color-neutral-500: #656f85;
+  --color-neutral-600: #4d566b;
+  --color-neutral-700: #383f52;
+  --color-neutral-800: #262b3d;
+  --color-neutral-900: #171a26;
+  --color-neutral-950: #0d0f18;
+
+  /* Single accent */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e6ff;
+  --color-primary-200: #c2ccff;
+  --color-primary-300: #9aa6ff;
+  --color-primary-400: #7480fa;
+  --color-primary-500: #5b62f0;
+  --color-primary-600: #4a4bd6;
+  --color-primary-700: #3d3cae;
+  --color-primary-800: #33338a;
+  --color-primary-900: #2c2f6e;
+
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-900);
+  --card: #ffffff;
+  --card-foreground: var(--color-neutral-900);
+  --border: var(--color-neutral-200);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-500);
+  --primary: var(--color-primary-500);
+  --primary-foreground: #ffffff;
+
+  /* 8px spacing grid */
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 16px;
+  --spacing-4: 24px;
+  --spacing-5: 32px;
+  --spacing-6: 40px;
+  --spacing-7: 48px;
+  --spacing-8: 64px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--color-neutral-950);
+    --foreground: var(--color-neutral-100);
+    --card: var(--color-neutral-900);
+    --card-foreground: var(--color-neutral-100);
+    --border: var(--color-neutral-700);
+    --muted: var(--color-neutral-800);
+    --muted-foreground: var(--color-neutral-400);
+    --primary: var(--color-primary-400);
+    --primary-foreground: var(--color-neutral-950);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+  --color-neutral-900: var(--color-neutral-900);
+  --color-neutral-950: var(--color-neutral-950);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Typography scale */
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--font-weight: 700;
+  --text-h2: 2rem;
+  --text-h2--line-height: 1.2;
+  --text-h2--font-weight: 700;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.3;
+  --text-h3--font-weight: 600;
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.35;
+  --text-h4--font-weight: 600;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+
+  /* 8px spacing grid */
+  --spacing-0: var(--spacing-0);
+  --spacing-1: var(--spacing-1);
+  --spacing-2: var(--spacing-2);
+  --spacing-3: var(--spacing-3);
+  --spacing-4: var(--spacing-4);
+  --spacing-5: var(--spacing-5);
+  --spacing-6: var(--spacing-6);
+  --spacing-7: var(--spacing-7);
+  --spacing-8: var(--spacing-8);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
