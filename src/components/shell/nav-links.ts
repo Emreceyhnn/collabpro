@@ -6,6 +6,7 @@ export interface NavLink {
 export const NAV_LINKS: NavLink[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/documents/welcome", label: "Documents" },
+  { href: "/assistant", label: "Assistant" },
   { href: "/settings", label: "Settings" },
   { href: "/settings/audit-logs", label: "Audit Logs" },
   { href: "/health", label: "System Health" },
