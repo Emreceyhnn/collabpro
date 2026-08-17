@@ -1,5 +1,6 @@
 import { google } from "@ai-sdk/google";
-import type { LanguageModel } from "ai";
+import type { InferUITools, LanguageModel, UIMessage } from "ai";
+import { linkPreviewTool } from "@/lib/ai/tools/link-preview";
 
 /**
  * Central configuration for the CollabPro AI assistant.
@@ -32,6 +33,8 @@ export const CHAT_SYSTEM_PROMPT = `You are the CollabPro AI assistant, embedded 
 
 Answer questions helpfully and concisely. You do not currently have live access to the user's actual documents, teams, or audit logs — if asked about specific workspace data, say so plainly rather than inventing details, and suggest the user check the relevant CollabPro page (Documents, Settings, Audit Logs).
 
+You have a linkPreview tool: use it whenever the user shares a URL or asks what a specific link is about, so they get real title/description/image data instead of a guess. Only call it with a URL the user actually provided or clearly implied — never invent a URL to look up.
+
 Keep responses focused: a few short paragraphs or a tight list, not long essays, unless the user explicitly asks for depth.`;
 
 /**
@@ -40,3 +43,27 @@ Keep responses focused: a few short paragraphs or a tight list, not long essays,
  * long-form writing.
  */
 export const CHAT_MAX_OUTPUT_TOKENS = 1024;
+
+/**
+ * FE-07 — tools available to the assistant. Each entry's key is the tool
+ * name the model calls and that shows up client-side as a `tool-<name>`
+ * message part (e.g. `tool-linkPreview`). Read-only / side-effect-free by
+ * design: it only fetches a public URL and parses meta tags, so it needs
+ * no user confirmation step before running (contrast with a write-style
+ * tool, which would need one — see FL-06's guardrail for that pattern).
+ */
+export const CHAT_TOOLS = {
+  linkPreview: linkPreviewTool,
+};
+
+/**
+ * The fully-typed UIMessage shape for this app: `UIMessage`'s default TOOLS
+ * parameter is the generic `UITools` bag, which erases specific tool part
+ * types (`tool-linkPreview`) down to `never` under a type guard. Importing
+ * this type instead of the bare `UIMessage` — on both the route handler and
+ * any client component that inspects `message.parts` — keeps tool parts
+ * fully typed end to end (`part.input.url`, `part.output.title`, etc.)
+ * instead of requiring `as` casts at every use site.
+ */
+export type ChatTools = InferUITools<typeof CHAT_TOOLS>;
+export type ChatUIMessage = UIMessage<unknown, never, ChatTools>;

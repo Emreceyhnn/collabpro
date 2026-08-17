@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 import { ChatMessage } from "@/components/assistant/chat-message";
 import { ThinkingIndicator } from "@/components/assistant/thinking-indicator";
 import { useStickToBottom } from "@/components/assistant/use-stick-to-bottom";
+import { EmptyState } from "@/components/assistant/empty-state";
+import type { ChatUIMessage } from "@/lib/ai/chat-config";
 
 /**
  * The CollabPro AI assistant — FE-06's streaming chat interface.
@@ -28,8 +30,14 @@ export function ChatPanel() {
     [],
   );
 
-  const { messages, sendMessage, status, stop, error } = useChat({
+  const { messages, sendMessage, status, stop, error, regenerate } = useChat<ChatUIMessage>({
     transport,
+    onError: (err) => {
+      // FE-08: log client-side so a failed stream is visible in the
+      // browser console during development/review, without leaking
+      // anything to the rendered UI beyond the designed error banner below.
+      console.error("[assistant] chat error:", err);
+    },
   });
 
   const isStreaming = status === "streaming";
@@ -66,8 +74,33 @@ export function ChatPanel() {
   const showThinkingIndicator =
     isSubmitting || (isStreaming && lastMessage?.role !== "assistant");
 
+  function handleRetry() {
+    // FE-08: retry without duplicating history. `regenerate()` re-sends the
+    // last request from where it left off — if the failure happened before
+    // any assistant text streamed in, this is equivalent to resending the
+    // last user message; if a partial assistant reply already streamed,
+    // useChat's own bookkeeping (not ours) decides what gets replaced, so
+    // we never manually slice `messages` and risk dropping/duplicating a
+    // turn.
+    void regenerate();
+  }
+
   return (
-    <div className="flex h-[calc(100vh-8.5rem)] flex-col overflow-hidden rounded-lg border border-border bg-card sm:h-[calc(100vh-9rem)]">
+    <div
+      className="flex flex-col overflow-hidden rounded-lg border border-border bg-card"
+      style={{ height: "calc(100dvh - 8.5rem)" }}
+    >
+      {/*
+        FE-08 mobile Safari note: 100vh on iOS Safari is the *largest*
+        possible viewport height (as if the address bar/keyboard were
+        hidden), so a fixed `h-[100vh]` panel gets clipped under the browser
+        chrome and — worse — doesn't shrink when the keyboard opens, which
+        pushes the input off-screen behind the keyboard. `100dvh` (dynamic
+        viewport height) tracks the *actual* visible viewport and resizes
+        live as the keyboard opens/closes, so the input bar stays reachable.
+        Kept as an inline style rather than a Tailwind class since this repo's
+        Tailwind v4 setup doesn't have a `dvh` height utility configured.
+      */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <h2 className="text-h4 font-semibold text-card-foreground">
@@ -80,31 +113,48 @@ export function ChatPanel() {
       </div>
 
       <div className="relative flex-1 overflow-hidden">
-        <div
-          ref={scrollRef}
-          className="flex h-full flex-col gap-3 overflow-y-auto px-4 py-4"
-        >
-          {messages.length === 0 && (
-            <p className="text-body text-muted-foreground">
-              Start a conversation — ask a question to get going.
-            </p>
-          )}
+        {messages.length === 0 && !error ? (
+          <EmptyState
+            onPick={(suggestion) => {
+              setInput(suggestion);
+            }}
+          />
+        ) : (
+          <div
+            ref={scrollRef}
+            className="flex h-full flex-col gap-3 overflow-y-auto px-4 py-4"
+          >
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
 
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
+            {showThinkingIndicator && <ThinkingIndicator />}
 
-          {showThinkingIndicator && <ThinkingIndicator />}
-
-          {error && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-caption text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
-            >
-              Something went wrong reaching the assistant. Please try again.
-            </div>
-          )}
-        </div>
+            {/*
+              FE-08: the error state names what happened in plain language
+              and gives a working retry action — not just "something went
+              wrong." `error` clears itself the next time useChat submits
+              successfully, so this banner is transient by construction.
+            */}
+            {error && (
+              <div
+                role="alert"
+                className="flex items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-caption text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+              >
+                <span>
+                  {error.message || "Something went wrong reaching the assistant."}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="shrink-0 rounded-md border border-red-300 bg-white px-2 py-1 font-medium text-red-700 transition-colors hover:bg-red-100 dark:border-red-800 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {!isAtBottom && (
           <button
